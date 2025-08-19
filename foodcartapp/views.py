@@ -1,6 +1,9 @@
 from django.http import JsonResponse
 from django.templatetags.static import static
-import json
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework import status
 
 
 from .models import Product
@@ -60,9 +63,10 @@ def product_list_api(request):
     })
 
 
+@api_view(['POST'])
 def register_order(request):
     try:
-        data = json.loads(request.body.decode())
+        data = request.data
 
         order = Order.objects.create(
             first_name=data['firstname'],
@@ -76,8 +80,11 @@ def register_order(request):
             OrderItem.objects.create(
                 order=order,
                 product=product,
-                quantity=item['quantity']
+                quantity=item.get('quantity', 1)
             )
-    except ValueError:
-        return JsonResponse({})
-    return JsonResponse({})
+    except ObjectDoesNotExist:
+        order.delete()
+        return Response(
+            {'error': f'Product with id {item["product"]} not found'},
+            status=status.HTTP_400_BAD_REQUEST)
+    return Response({'order_id': order.id}, status=status.HTTP_201_CREATED)
