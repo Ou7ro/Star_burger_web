@@ -68,6 +68,40 @@ def register_order(request):
     try:
         data = request.data
 
+        required_fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+        for field in required_fields:
+            if field not in data:
+                return Response(
+                    {'error': f'Пропущенно обязательное поле: {field}'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        products_data = data['products']
+
+        if isinstance(products_data, str):
+            return Response(
+                {'error': 'products: Ожидался list со значениями, но был получен str'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if products_data is None:
+            return Response(
+                {'error': 'products: Это поле не может быть пустым'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not isinstance(products_data, list):
+            return Response(
+                {'error': f'products: Ожидался list со значениями'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if len(products_data) == 0:
+            return Response(
+                {'error': 'products: Этот список не может быть пустым'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         order = Order.objects.create(
             first_name=data['firstname'],
             last_name=data['lastname'],
@@ -85,6 +119,6 @@ def register_order(request):
     except ObjectDoesNotExist:
         order.delete()
         return Response(
-            {'error': f'Product with id {item["product"]} not found'},
+            {'error': f'Продукт с id {item["product"]} не найден'},
             status=status.HTTP_400_BAD_REQUEST)
     return Response({'order_id': order.id}, status=status.HTTP_201_CREATED)
