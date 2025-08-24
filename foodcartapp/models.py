@@ -129,16 +129,16 @@ class Order(models.Model):
         'адрес',
         max_length=50,
     )
-    first_name = models.CharField(
+    firstname = models.CharField(
         'имя',
         max_length=50
     )
-    last_name = models.CharField(
+    lastname = models.CharField(
         'Фамилия',
         max_length=50,
         db_index=True,
     )
-    phone_number = PhoneNumberField(
+    phonenumber = PhoneNumberField(
         'номер телефона',
         region='RU',
         max_length=20,
@@ -150,7 +150,7 @@ class Order(models.Model):
         verbose_name_plural = 'Заказы'
 
     def __str__(self):
-        return f'Заказ от {self.first_name} {self.last_name}, по адресу: {self.address}'
+        return f'Заказ от {self.firstname} {self.lastname}, по адресу: {self.address}'
 
 
 class OrderItem(models.Model):
