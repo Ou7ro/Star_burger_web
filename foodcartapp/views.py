@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 
-from .serializers import OrderSerializer
+from .serializers import OrderSerializer, OrderResponseSerializer
 from .models import Product
 
 
@@ -69,7 +69,8 @@ def register_order(request):
 
     try:
         order = serializer.save()
-        return Response({'order_id': order.id}, status=status.HTTP_201_CREATED)
+        response_serializer = OrderResponseSerializer(order)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
     except Exception as e:
         return Response(
             {'error': str(e)},

@@ -22,14 +22,15 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    products = OrderItemSerializer(many=True, allow_empty=False)
-    firstname = serializers.CharField(source='first_name', max_length=50)
-    lastname = serializers.CharField(source='last_name', max_length=50)
+    products = OrderItemSerializer(many=True, write_only=True, allow_empty=False)
+    firstname = serializers.CharField(max_length=50)
+    lastname = serializers.CharField(max_length=50)
     address = serializers.CharField(max_length=50)
 
     class Meta:
         model = Order
         fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+        read_only_fields = ['id']
         extra_kwargs = {
             'phonenumber': {
                 'error_messages': {
@@ -58,3 +59,9 @@ class OrderSerializer(serializers.ModelSerializer):
                 quantity=product_data['quantity']
             )
         return order
+
+
+class OrderResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['id', 'firstname', 'lastname', 'phonenumber', 'address']
