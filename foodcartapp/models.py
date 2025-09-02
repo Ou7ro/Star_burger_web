@@ -8,7 +8,7 @@ class CustomQueryset(models.QuerySet):
     def total_price(self):
         price = self.annotate(
             total_price=Sum(
-                F('order_items__product__price') * F('order_items__quantity')
+                F('order_items__price') * F('order_items__quantity')
             )
         )
         return price
@@ -172,11 +172,20 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product,
                                 on_delete=models.CASCADE,
                                 related_name='order_items',
-                                verbose_name='продукт')
+                                verbose_name='продукт',
+                                blank=True)
     quantity = models.IntegerField(
         validators=[MinValueValidator(1),
                     MaxValueValidator(99)],
-        verbose_name='количество')
+        verbose_name='количество',
+        blank=True)
+    price = models.DecimalField(
+        verbose_name='цена на момент заказа',
+        max_digits=8,
+        decimal_places=2,
+        default=0.0,
+        validators=[MinValueValidator(0)]
+    )
 
     class Meta:
         verbose_name = 'Элемент заказа'
