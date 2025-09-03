@@ -3,6 +3,7 @@ from django.templatetags.static import static
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
+from django.db import transaction
 
 from .serializers import OrderSerializer, OrderResponseSerializer
 from .models import Product
@@ -68,9 +69,12 @@ def register_order(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        order = serializer.save()
+        with transaction.atomic():
+            order = serializer.save()
+
         response_serializer = OrderResponseSerializer(order)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
     except Exception as e:
         return Response(
             {'error': str(e)},
