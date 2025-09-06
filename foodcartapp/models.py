@@ -158,7 +158,7 @@ class Order(models.Model):
         max_length=50
     )
     lastname = models.CharField(
-        'Фамилия',
+        'фамилия',
         max_length=50,
         db_index=True,
     )
@@ -167,6 +167,10 @@ class Order(models.Model):
         region='RU',
         max_length=20,
         db_index=True
+    )
+    comments = models.TextField(
+        'комментарий',
+        blank=True,
     )
     objects = CustomQueryset.as_manager()
 
