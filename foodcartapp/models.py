@@ -144,8 +144,9 @@ class Order(models.Model):
         ('completed', 'Завершен'),
     ]
     PAYMANT_CHOICES = [
+        ('unprocessed', 'Необработанный'),
         ('cash', 'Наличностью'),
-        ('electronic', 'Электронно')
+        ('electronic', 'Электронно'),
     ]
     status = models.CharField(
         max_length=20,
@@ -157,7 +158,7 @@ class Order(models.Model):
     payment_method = models.CharField(
         max_length=20,
         choices=PAYMANT_CHOICES,
-        default='Не выбран',
+        default='unprocessed',
         db_index=True,
         verbose_name='Способ оплаты'
     )
