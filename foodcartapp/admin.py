@@ -4,6 +4,7 @@ from django.templatetags.static import static
 from django.utils.html import format_html
 from django.http import HttpResponseRedirect
 from django.utils.http import url_has_allowed_host_and_scheme
+from django import forms
 
 
 from .models import Product
@@ -112,8 +113,45 @@ class OrderItemInline(admin.TabularInline):
     readonly_fields = ['price']
 
 
+class OrderAdminForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            order_products = [item.product for item in self.instance.order_items.all()]
+
+            if not order_products:
+                self.fields['cooking_restaurant'].queryset = Restaurant.objects.none()
+                return
+
+            suitable_restaurants = set()
+            first_product = True
+
+            for product in order_products:
+                restaurants_for_product = set(
+                    RestaurantMenuItem.objects.filter(
+                        product=product,
+                        availability=True
+                    ).values_list('restaurant', flat=True)
+                )
+
+                if first_product:
+                    suitable_restaurants = restaurants_for_product
+                    first_product = False
+                else:
+                    suitable_restaurants &= restaurants_for_product
+
+            self.fields['cooking_restaurant'].queryset = Restaurant.objects.filter(
+                id__in=suitable_restaurants
+            )
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
+    form = OrderAdminForm
     inlines = [OrderItemInline]
 
     def save_formset(self, request, form, formset, change):

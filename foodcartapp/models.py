@@ -202,6 +202,14 @@ class Order(models.Model):
         blank=True,
         db_index=True
     )
+    cooking_restaurant = models.ForeignKey(
+        Restaurant,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+        verbose_name='Ресторан для приготовления'
+    )
     objects = CustomQueryset.as_manager()
 
     class Meta:

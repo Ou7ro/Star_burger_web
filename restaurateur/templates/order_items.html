@@ -14,33 +14,50 @@
    <table class="table table-responsive">
     <tr>
       <th>ID заказа</th>
-      <th>Стутус</th>
+      <th>Статус</th>
       <th>Способ оплаты</th>
       <th>Стоимость заказа</th>
       <th>Клиент</th>
       <th>Телефон</th>
       <th>Адрес доставки</th>
       <th>Комментарий</th>
+      <th>Рестораны</th>
       <th>Ссылка на админку</th>
     </tr>
-
+    
     {% for item in order_items %}
       <tr>
-        <td>{{item.id}}</td>
-        <td>{{item.get_status_display}}</td>
-        <td>{{item.get_payment_method_display}}</td>
-        <td>{{item.total_price}} руб.</td>
-        <td>{{item.firstname}}</td>
-        <td>{{item.phonenumber}}</td>
-        <td>{{item.address}}</td>
-        <td>{{item.comments}}</td>
+        <td>{{ item.order.id }}</td>
+        <td>{{ item.order.get_status_display }}</td>
+        <td>{{ item.order.get_payment_method_display }}</td>
+        <td>{{ item.order.total_price }} руб.</td>
+        <td>{{ item.order.firstname }} {{ item.order.lastname }}</td>
+        <td>{{ item.order.phonenumber }}</td>
+        <td>{{ item.order.address }}</td>
+        <td>{{ item.order.comments }}</td>
         <td>
-          <a href="{% url 'admin:foodcartapp_order_change' object_id=item.id %}?next={{ request.path|urlencode }}">
+          {% if item.order.cooking_restaurant %}
+            <p>Готовит: {{ item.order.cooking_restaurant.name }} - {{ item.order.cooking_restaurant.address }}</p>
+          {% else %}
+            <details>
+              <summary>Рестораны, которые могут приготовить:</summary>
+              <ul>
+                {% for restaurant in item.suitable_restaurants %}
+                  <li>{{ restaurant.name }} - {{ restaurant.address }}</li>
+                {% empty %}
+                  <li>Нет подходящих ресторанов</li>
+                {% endfor %}
+              </ul>
+            </details>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'admin:foodcartapp_order_change' item.order.id %}?next={{ request.path|urlencode }}">
             Редактировать
           </a>
         </td>
       </tr>
     {% endfor %}
-   </table>
+    </table>
   </div>
 {% endblock %}

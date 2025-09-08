@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
 
-from foodcartapp.models import Product, Restaurant, Order
+from foodcartapp.models import Product, Restaurant, Order, RestaurantMenuItem
 
 
 class Login(forms.Form):
@@ -91,7 +91,40 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order = list(Order.objects.total_price())
+    orders = Order.objects.total_price().filter(status='unprocessed').prefetch_related(
+        'order_items__product__menu_items__restaurant'
+    )
+
+    menu_items = RestaurantMenuItem.objects.filter(availability=True).select_related('restaurant', 'product')
+
+    product_restaurants = {}
+    for item in menu_items:
+        if item.product_id not in product_restaurants:
+            product_restaurants[item.product_id] = []
+        product_restaurants[item.product_id].append(item.restaurant)
+
+    orders_with_restaurants = []
+    for order in orders:
+        suitable_restaurants = set()
+        first_product = True
+
+        for order_item in order.order_items.all():
+            product = order_item.product
+            if product.id in product_restaurants:
+                if first_product:
+                    suitable_restaurants = set(product_restaurants[product.id])
+                    first_product = False
+                else:
+                    suitable_restaurants &= set(product_restaurants[product.id])
+            else:
+                suitable_restaurants = set()
+                break
+
+        orders_with_restaurants.append({
+            'order': order,
+            'suitable_restaurants': sorted(suitable_restaurants, key=lambda r: r.name)
+        })
+
     return render(request, template_name='order_items.html', context={
-        'order_items': order,
+        'order_items': orders_with_restaurants,
     })
