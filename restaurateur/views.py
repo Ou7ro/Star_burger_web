@@ -7,6 +7,7 @@ from django.conf import settings
 
 from geopy import distance
 import requests
+from geocoder_cache.utils import get_cached_coordinates
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
@@ -93,30 +94,8 @@ def view_restaurants(request):
     })
 
 
-def fetch_coordinates(apikey, address):
-    if not address:
-        return None
-    
-    base_url = "https://geocode-maps.yandex.ru/1.x"
-    response = requests.get(base_url, params={
-        "geocode": address,
-        "apikey": apikey,
-        "format": "json",
-    })
-    response.raise_for_status()
-    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
-
-    if not found_places:
-        return None
-
-    most_relevant = found_places[0]
-    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
-    return lat, lon
-
-
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    yandex_api_key = settings.YANDEX_API_KEY
     orders = Order.objects.total_price().filter(status='unprocessed').prefetch_related(
         'order_items__product__menu_items__restaurant'
     )
@@ -146,19 +125,17 @@ def view_orders(request):
                 suitable_restaurants = set()
                 break
 
-        order_coords = None
-        if order.address:
-            order_coords = fetch_coordinates(yandex_api_key, order.address)
+        order_lat, order_lon = get_cached_coordinates(order.address)
+        order_coords = (order_lat, order_lon) if order_lat and order_lon else None
 
         restaurants_with_distances = []
         for restaurant in suitable_restaurants:
-            if (restaurant.lat is not None and restaurant.lon is not None and 
-                order_coords is not None):
-
+            rest_lat, rest_lon = get_cached_coordinates(restaurant.address)
+            if order_coords and rest_lat and rest_lon:
                 try:
                     rest_order_distance = distance.distance(
                         order_coords,
-                        (restaurant.lat, restaurant.lon)
+                        (rest_lat, rest_lon)
                     ).km
                     distance_km = f'{round(rest_order_distance, 2)} км'
                 except ValueError:
@@ -171,7 +148,7 @@ def view_orders(request):
                 'distance': distance_km
             })
 
-        restaurants_with_distances.sort(key=lambda x: 
+        restaurants_with_distances.sort(key=lambda x:
             x['distance'] if isinstance(x['distance'], (int, float)) else float('inf'))
 
         orders_with_restaurants.append({
