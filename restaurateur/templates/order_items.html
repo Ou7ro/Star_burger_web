@@ -42,8 +42,8 @@
             <details>
               <summary>Рестораны, которые могут приготовить:</summary>
               <ul>
-                {% for restaurant in item.suitable_restaurants %}
-                  <li>{{ restaurant.name }} - {{ restaurant.address }}</li>
+                {% for restaurant_info in item.suitable_restaurants %}
+                  <li>{{ restaurant_info.restaurant.name }} - {{ restaurant_info.distance }}</li>
                 {% empty %}
                   <li>Нет подходящих ресторанов</li>
                 {% endfor %}
