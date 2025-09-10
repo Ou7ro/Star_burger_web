@@ -11,15 +11,9 @@ def get_cached_coordinates(address):
     if not address:
         return None, None
 
-    cache_key = f'geocode_{address}'
-    cached_data = cache.get(cache_key)
-    if cached_data:
-        return cached_data
-
     try:
         location = CachedLocation.objects.get(address=address)
         if not location.is_expired():
-            cache.set(cache_key, (location.latitude, location.longitude), 3600)
             return location.latitude, location.longitude
     except CachedLocation.DoesNotExist:
         pass
@@ -32,7 +26,6 @@ def fetch_and_cache_coordinates(address):
     Запрашивает координаты у API и сохраняет в кэш
     """
     try:
-
         base_url = "https://geocode-maps.yandex.ru/1.x"
         response = requests.get(base_url, params={
             "geocode": address,
