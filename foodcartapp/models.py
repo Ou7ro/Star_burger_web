@@ -145,7 +145,7 @@ class Order(models.Model):
         ('delivery', 'Доставка'),
         ('completed', 'Завершен'),
     ]
-    PAYMANT_CHOICES = [
+    PAYMENT_CHOICES = [
         ('unprocessed', 'Необработанный'),
         ('cash', 'Наличностью'),
         ('electronic', 'Электронно'),
@@ -159,7 +159,7 @@ class Order(models.Model):
     )
     payment_method = models.CharField(
         max_length=20,
-        choices=PAYMANT_CHOICES,
+        choices=PAYMENT_CHOICES,
         default='unprocessed',
         db_index=True,
         verbose_name='Способ оплаты'
@@ -187,7 +187,7 @@ class Order(models.Model):
         'комментарий',
         blank=True,
     )
-    registated_at = models.DateTimeField(
+    registered_at = models.DateTimeField(
         'дата и время регистрации',
         default=timezone.now,
         db_index=True
@@ -240,7 +240,6 @@ class OrderItem(models.Model):
         verbose_name='цена на момент заказа',
         max_digits=8,
         decimal_places=2,
-        default=0.0,
         validators=[MinValueValidator(0)]
     )
 
