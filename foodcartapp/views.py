@@ -66,16 +66,7 @@ def register_order(request):
     serializer = OrderSerializer(data=request.data)
 
     serializer.is_valid(raise_exception=True)
-
-    try:
-        with transaction.atomic():
-            order = serializer.save()
-
-        response_serializer = OrderResponseSerializer(order)
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-
-    except Exception as e:
-        return Response(
-            {'error': str(e)},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+    with transaction.atomic():
+        order = serializer.save()
+    response_serializer = OrderResponseSerializer(order)
+    return Response(response_serializer.data, status=status.HTTP_201_CREATED)
