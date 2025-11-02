@@ -58,6 +58,9 @@ pip install -r requirements.txt
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 YANDEX_API_KEY=6f943970-....    - Требуется для работы API Яндекс-геокодера. Получите API ключ в [кабинете разработчика](https://developer.tech.yandex.ru/services)
+ROLLBAR_TOKEN=Требуется для работы Rollback трекера
+ALLOWED_HOSTS=Необязательный, по умолчанию ['127.0.0.1', 'localhost'].
+DEBUG=Необязательный, по умолчанию True. Нужен для включения режима отладки.
 ```
 
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
