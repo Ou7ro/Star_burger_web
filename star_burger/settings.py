@@ -1,7 +1,5 @@
 import os
-
 import dj_database_url
-
 from environs import Env
 
 
@@ -48,8 +46,8 @@ MIDDLEWARE = [
 
 ROLLBAR = {
     'access_token': ROLLBAR_TOKEN,
-    'environment': 'development' if DEBUG else 'production',
-    'code_version': '1.0',
+    'environment': env.str('ROLLBAR_ENVIRONMENT', 'development'),
+    'code_version': env.str('APP_VERSION', '1.0'),
     'root': BASE_DIR,
 }
 
