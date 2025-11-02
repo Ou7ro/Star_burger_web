@@ -12,5 +12,22 @@
   },
   "devDependencies": {
     "@babel/core": "^7.17.8"
-  }
+  },
+  "name": "star_burger_web",
+  "description": "Это сайт сети ресторанов Star Burger. Здесь можно заказать превосходные бургеры с доставкой на дом.",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ou7ro/Star_burger_web.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ou7ro/Star_burger_web/issues"
+  },
+  "homepage": "https://github.com/Ou7ro/Star_burger_web#readme"
 }
