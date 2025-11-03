@@ -1,21 +1,19 @@
 import os
-import dj_database_url
-from environs import Env
+import environ
 
 
-env = Env()
-env.read_env()
+env = environ.Env()
+environ.Env.read_env(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-YANDEX_API_KEY = env.str('YANDEX_API_KEY')
-
+YANDEX_API_KEY = env('YANDEX_API_KEY')
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', True)
-ROLLBAR_TOKEN = env.str('ROLLBAR_TOKEN')
+ROLLBAR_TOKEN = env('ROLLBAR_TOKEN')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
@@ -46,8 +44,8 @@ MIDDLEWARE = [
 
 ROLLBAR = {
     'access_token': ROLLBAR_TOKEN,
-    'environment': env.str('ROLLBAR_ENVIRONMENT', 'development'),
-    'code_version': env.str('APP_VERSION', '1.0'),
+    'environment': env('ROLLBAR_ENVIRONMENT', default='development'),
+    'code_version': env('APP_VERSION', default='1.0'),
     'root': BASE_DIR,
 }
 
@@ -92,9 +90,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
-    )
+    'default': env.db('DATABASE_URL', default='postgresql://user:pass@localhost/db')
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -127,7 +123,6 @@ STATIC_URL = '/static/'
 INTERNAL_IPS = [
     '127.0.0.1'
 ]
-
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),

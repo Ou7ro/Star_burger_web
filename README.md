@@ -59,6 +59,7 @@ pip install -r requirements.txt
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 YANDEX_API_KEY=6f943970-....    - Требуется для работы API Яндекс-геокодера. Получите API ключ в [кабинете разработчика](https://developer.tech.yandex.ru/services)
 ROLLBAR_TOKEN=Требуется для работы Rollback трекера
+DATABASE_URL=Требуется для подключения к БД. Формат - DATABASE_URL=postgres://ваш_пользователь:ваш_пароль@localhost:5432/ваша_база
 ALLOWED_HOSTS=Необязательный, по умолчанию ['127.0.0.1', 'localhost'].
 DEBUG=Необязательный, по умолчанию True. Нужен для включения режима отладки.
 ROLLBAR_ENVIRONMENT=Необязательный, по умолчанию development.
