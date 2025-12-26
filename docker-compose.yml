@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: star_burger_db
+    environment:
+      POSTGRES_DB: star_burger
+      POSTGRES_USER: pavel
+      POSTGRES_PASSWORD: 4466
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pavel -d star_burger"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: star_burger_backend
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - media_volume:/app/media
+      - static_volume:/app/staticfiles
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgres://pavel:4466@db:5432/star_burger
+    networks:
+      - app_network
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn --bind 0.0.0.0:8000 --workers 3 star_burger.wsgi:application"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: star_burger_frontend
+    depends_on:
+      - backend
+    volumes:
+      - media_volume:/usr/share/nginx/media:ro
+      - static_volume:/usr/share/nginx/static:ro
+    ports:
+      - "80:80"
+    networks:
+      - app_network
+
+volumes:
+  postgres_data:
+  media_volume:
+  static_volume:
+
+networks:
+  app_network:
+    driver: bridge

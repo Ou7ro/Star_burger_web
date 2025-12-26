@@ -177,10 +177,16 @@ Parcel будет следить за файлами в каталоге `bundle
 ./deploy_star_burger.sh
 ```
 
-## Цели проекта
+## Запуск с помощью Docker Compose
 
-Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
+Для запуска проекта с использованием Docker Compose выполните:
 
-Где используется репозиторий:
+1. Установите Docker и Docker Compose, если они еще не установлены.
 
-- Второй и третий урок [учебного курса Django](https://dvmn.org/modules/django/)
+2. Создайте файл `.env` в корне проекта с переменными окружения (см. раздел выше).
+
+3. Запустите контейнеры:
+
+```bash
+   docker-compose up -d --build
+```
