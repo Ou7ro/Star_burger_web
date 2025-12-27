@@ -13,6 +13,7 @@ services:
       - ./dump.sql:/docker-entrypoint-initdb.d/01-dump.sql:ro
     networks:
       - app_network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pavel -d star_burger"]
       interval: 10s
@@ -34,12 +35,14 @@ services:
       - .env
     environment:
       DATABASE_URL: postgres://pavel:4466@db:5432/star_burger
+      PYTHONUNBUFFERED: 1
     networks:
       - app_network
+    restart: unless-stopped
     command: >
-      sh -c "python manage.py migrate &&
+      sh -c "python manage.py migrate --noinput &&
              python manage.py collectstatic --noinput &&
-             gunicorn --bind 0.0.0.0:8000 --workers 3 star_burger.wsgi:application"
+             gunicorn --bind 0.0.0.0:8000 --workers 4 --timeout 120 star_burger.wsgi:application"
 
   frontend:
     build:
@@ -53,6 +56,7 @@ services:
       - static_volume:/usr/share/nginx/static:ro
     ports:
       - "80:80"
+      - "443:443"
     networks:
       - app_network
 
