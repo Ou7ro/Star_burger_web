@@ -185,6 +185,13 @@ Parcel будет следить за файлами в каталоге `bundle
 
 1. Установите Docker и Docker Compose, если они еще не установлены.
 
+```bash
+sudo apt update
+sudo apt install docker.io docker-compose
+sudo systemctl enable docker
+sudo systemctl start docker
+```
+
 2. Создайте файл `.env` в корне проекта с переменными окружения (см. раздел выше).
 
 3. Запустите контейнеры:

@@ -3,7 +3,7 @@
 set -e
 
 echo "Starting Star Burger deployment..."
-cd /opt/Star_burger_web
+cd /app/Star_burger_web
 echo " Pulling latest code from GitHub..."
 git pull
 
